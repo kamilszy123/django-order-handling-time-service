@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+import os
+from urllib.parse import urlparse
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -116,3 +118,28 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+# ALLOWED HOSTS
+
+BASE_URL = os.getenv("BASE_URL")
+parsed = urlparse(BASE_URL)
+
+ALLOWED_HOSTS = [
+    parsed.hostname,
+    "localhost",
+    "127.0.0.1"]
+
+# Allegro api configuration
+
+ALLEGRO_CLIENT_ID = os.getenv('ALLEGRO_CLIENT_ID')
+ALLEGRO_CLIENT_SECRET = os.getenv('ALLEGRO_CLIENT_SECRET')
+ALLEGRO_REDIRECT_URI = f'{BASE_URL}/api/allegro/callback/'
+
+ALLEGRO_ENV = 'sandbox'
+
+if ALLEGRO_ENV == 'production':
+    ALLEGRO_API_URL = 'https://api.allegro.pl'
+    ALLEGRO_TOKEN_URL = 'https://allegro.pl/auth/oauth/token'
+else:
+    ALLEGRO_API_URL = 'https://api.allegro.pl.allegrosandbox.pl'
+    ALLEGRO_TOKEN_URL = 'https://allegro.pl.allegrosandbox.pl/auth/oauth/token'
