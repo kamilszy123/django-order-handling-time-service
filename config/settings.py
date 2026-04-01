@@ -14,21 +14,23 @@ from pathlib import Path
 import os
 from urllib.parse import urlparse
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-9n8-nz0nf#ku*l+rq5mhlm_7-c5^w#!+=a!aot3cnj@)iz#dpj'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'dev-secret-key-change-me')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -39,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
     'handling_time'
 ]
 
@@ -71,7 +74,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
@@ -81,7 +83,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -101,7 +102,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
@@ -113,7 +113,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
@@ -123,7 +122,6 @@ STATIC_URL = 'static/'
 
 BASE_URL = os.getenv("BASE_URL")
 parsed = urlparse(BASE_URL)
-
 ALLOWED_HOSTS = [
     parsed.hostname,
     "localhost",
@@ -134,12 +132,12 @@ ALLOWED_HOSTS = [
 ALLEGRO_CLIENT_ID = os.getenv('ALLEGRO_CLIENT_ID')
 ALLEGRO_CLIENT_SECRET = os.getenv('ALLEGRO_CLIENT_SECRET')
 ALLEGRO_REDIRECT_URI = f'{BASE_URL}/api/allegro/callback/'
-
 ALLEGRO_ENV = 'sandbox'
 
 if ALLEGRO_ENV == 'production':
-    ALLEGRO_API_URL = 'https://api.allegro.pl'
-    ALLEGRO_TOKEN_URL = 'https://allegro.pl/auth/oauth/token'
+    pass
+    # ALLEGRO_API_URL = 'https://api.allegro.pl'
+    # ALLEGRO_TOKEN_URL = 'https://allegro.pl/auth/oauth/token'
 else:
     ALLEGRO_API_URL = 'https://api.allegro.pl.allegrosandbox.pl'
     ALLEGRO_TOKEN_URL = 'https://allegro.pl.allegrosandbox.pl/auth/oauth/token'
