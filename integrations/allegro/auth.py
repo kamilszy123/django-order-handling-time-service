@@ -47,8 +47,10 @@ def _post_token(data):
         timeout=10
     )
     if response.status_code != 200:
-        raise Exception(f"Allegro auth error: {response.text}")
-
+        raise AllegroAuthError(
+            f'Allegro auth error: {response.text}',
+            status_code=response.status_code
+        )
     return response.json()
 
 
@@ -68,3 +70,8 @@ def _get_headers():
 
 def _get_auth():
     return (settings.ALLEGRO_CLIENT_ID, settings.ALLEGRO_CLIENT_SECRET)
+
+class AllegroAuthError(Exception):
+    def __init__(self, message, status_code=None):
+        self.status_code = status_code
+        super().__init__(message)
