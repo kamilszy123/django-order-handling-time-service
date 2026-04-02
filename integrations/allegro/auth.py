@@ -3,6 +3,8 @@ from django.utils import timezone
 from django.conf import settings
 import requests
 
+from integrations.allegro.exceptions import AllegroAuthError
+
 
 def exchange_code_for_token(account, code):
     data = {
@@ -20,14 +22,14 @@ def get_valid_access_token(account):
         refresh_access_token(account)
 
     if not account.access_token:
-        raise Exception('Missing access token')
+        raise Exception("Missing access token")
 
     return account.access_token
 
 
 def refresh_access_token(account):
     if not account.refresh_token:
-        raise Exception('Missing refresh token')
+        raise Exception("Missing refresh token")
 
     data = {
         "grant_type": "refresh_token",
@@ -48,15 +50,15 @@ def _post_token(data):
     )
     if response.status_code != 200:
         raise AllegroAuthError(
-            f'Allegro auth error: {response.text}',
+            f"Allegro auth error: {response.text}",
             status_code=response.status_code
         )
     return response.json()
 
 
 def _save_tokens(account, token_data):
-    account.access_token = token_data['access_token']
-    account.refresh_token = token_data['refresh_token']
+    account.access_token = token_data["access_token"]
+    account.refresh_token = token_data["refresh_token"]
     account.expires_at = timezone.now() + timedelta(seconds=token_data["expires_in"])
     account.save()
 
@@ -71,7 +73,4 @@ def _get_headers():
 def _get_auth():
     return (settings.ALLEGRO_CLIENT_ID, settings.ALLEGRO_CLIENT_SECRET)
 
-class AllegroAuthError(Exception):
-    def __init__(self, message, status_code=None):
-        self.status_code = status_code
-        super().__init__(message)
+
