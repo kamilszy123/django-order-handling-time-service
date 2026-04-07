@@ -17,3 +17,12 @@ class Account(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class HandlingTimeConfig(models.Model):
+    account = models.ForeignKey(Account, on_delete=models.CASCADE)
+    offer_id = models.CharField(max_length=100)
+    target_date = models.DateTimeField()
+
+    def __str__(self):
+        return f"{self.offer_id} -> {self.target_date}"
