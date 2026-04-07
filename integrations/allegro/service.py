@@ -1,5 +1,6 @@
 from integrations.allegro.client import AllegroClient
 from integrations.allegro.exceptions import AllegroAPIError
+
 def get_offers(account):
     client = AllegroClient(account)
 
