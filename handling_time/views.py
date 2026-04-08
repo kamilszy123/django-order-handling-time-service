@@ -3,10 +3,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from integrations.allegro.exceptions import AllegroError
-from integrations.allegro.service import get_offers, update_handling_time
+from integrations.allegro.service import get_offers
 from .models import Account, HandlingTimeConfig
 from integrations.allegro.auth import exchange_code_for_token
-from .srializers import HandlingTimeConfigSerializer, HandlingTimeBulkSerializer
+from .serializers import HandlingTimeConfigSerializer, HandlingTimeBulkSerializer
 
 
 class AllegroCallbackView(APIView):
@@ -62,8 +62,12 @@ class HandlingTimeConfigView(APIView):
         target_date = serializer.validated_data["target_date"]
 
         account = Account.objects.first()
-
-        config, created = HandlingTimeConfig.objects.update_or_create(
+        if not account:
+            return Response(
+                {"error": "No account configured"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        _, was_created = HandlingTimeConfig.objects.update_or_create(
             offer_id=offer_id,
             defaults={
                 "account": account,
@@ -73,7 +77,7 @@ class HandlingTimeConfigView(APIView):
 
         return Response(
             {
-                "status": "created" if created else "updated",
+                "status": "created" if was_created else "updated",
                 "offer_id": offer_id,
                 "target_date": target_date
             },
@@ -88,17 +92,21 @@ class HandlingTimeBulkConfigView(APIView):
 
         target_date = serializer.validated_data["target_date"]
         account = Account.objects.first()
-
+        if not account:
+            return Response(
+                {"error": "No account configured"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         response = get_offers(account)
 
         offers = response.get("offers", [])
-        offer_ids = [offer.id for offer in offers if offer.get("id")]
+        offer_ids = [offer["id"] for offer in offers]
 
         created = 0
         updated = 0
 
         for offer_id in offer_ids:
-            _, was_created = HandlingTimeConfig.objects.get_or_create(
+            _, was_created = HandlingTimeConfig.objects.update_or_create(
                 offer_id=offer_id,
                 defaults={
                     "account": account,
@@ -115,5 +123,6 @@ class HandlingTimeBulkConfigView(APIView):
                 "status": "ok",
                 "created": created,
                 "updated": updated
-            }
+            },
+            status=status.HTTP_200_OK
         )
