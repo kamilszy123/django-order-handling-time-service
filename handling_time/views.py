@@ -6,7 +6,7 @@ from integrations.allegro.exceptions import AllegroError
 from integrations.allegro.service import get_offers, update_handling_time
 from .models import Account, HandlingTimeConfig
 from integrations.allegro.auth import exchange_code_for_token
-from .srializers import HandlingTimeConfigSerializer
+from .srializers import HandlingTimeConfigSerializer, HandlingTimeBulkSerializer
 
 
 class AllegroCallbackView(APIView):
@@ -52,6 +52,7 @@ class AllegroGetOffersView(APIView):
                 status=e.status_code or status.HTTP_502_BAD_GATEWAY
             )
 
+
 class HandlingTimeConfigView(APIView):
     def post(self, request):
         serializer = HandlingTimeConfigSerializer(data=request.data)
@@ -79,3 +80,40 @@ class HandlingTimeConfigView(APIView):
             status=status.HTTP_200_OK
         )
 
+
+class HandlingTimeBulkConfigView(APIView):
+    def post(self, request):
+        serializer = HandlingTimeBulkSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        target_date = serializer.validated_data["target_date"]
+        account = Account.objects.first()
+
+        response = get_offers(account)
+
+        offers = response.get("offers", [])
+        offer_ids = [offer.id for offer in offers if offer.get("id")]
+
+        created = 0
+        updated = 0
+
+        for offer_id in offer_ids:
+            _, was_created = HandlingTimeConfig.objects.get_or_create(
+                offer_id=offer_id,
+                defaults={
+                    "account": account,
+                    "target_date": target_date
+                }
+            )
+            if was_created:
+                created += 1
+            else:
+                updated += 1
+
+        return Response(
+            {
+                "status": "ok",
+                "created": created,
+                "updated": updated
+            }
+        )
