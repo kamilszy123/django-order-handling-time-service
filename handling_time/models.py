@@ -4,7 +4,7 @@ from datetime import timedelta
 from django.db import models
 
 class Account(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
 
     access_token = models.TextField(null=True, blank=True)
     refresh_token = models.TextField(null=True, blank=True)
@@ -21,7 +21,7 @@ class Account(models.Model):
 
 class HandlingTimeConfig(models.Model):
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
-    offer_id = models.CharField(max_length=100)
+    offer_id = models.CharField(max_length=100, unique=True)
     target_date = models.DateTimeField()
 
     def __str__(self):
