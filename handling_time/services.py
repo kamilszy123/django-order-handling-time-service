@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 
 ALLOWED_HANDLING_TIMES = [
     (1, "PT24H"),
@@ -18,6 +18,9 @@ MAX_HANDLING_TIME = "P60D"
 
 
 def calculate_handling_time(target_date):
+    if isinstance(target_date, datetime):
+        target_date = target_date.date()
+
     if not isinstance(target_date, date):
         raise ValueError("target_date must be a date")
 
