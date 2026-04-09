@@ -6,7 +6,7 @@ from integrations.allegro.exceptions import AllegroError
 from integrations.allegro.service import get_offers
 from .models import Account, HandlingTimeConfig
 from integrations.allegro.auth import exchange_code_for_token
-from .serializers import HandlingTimeConfigSerializer, HandlingTimeBulkSerializer
+from .serializers import HandlingTimeConfigSerializer, HandlingTimeBulkSerializer, HandlingTimeConfigListSerializer
 
 
 class AllegroCallbackView(APIView):
@@ -54,6 +54,16 @@ class AllegroGetOffersView(APIView):
 
 
 class HandlingTimeConfigView(APIView):
+    def get(self,request):
+        config = HandlingTimeConfig.objects.all()
+
+        serializer = HandlingTimeConfigListSerializer(config, many=True)
+
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK
+        )
+
     def post(self, request):
         serializer = HandlingTimeConfigSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
