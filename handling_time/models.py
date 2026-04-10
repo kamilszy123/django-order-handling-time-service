@@ -22,7 +22,7 @@ class Account(models.Model):
 class HandlingTimeConfig(models.Model):
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     offer_id = models.CharField(max_length=100, unique=True)
-    target_date = models.DateTimeField()
+    target_date = models.DateField()
 
     def __str__(self):
         return f"{self.offer_id} -> {self.target_date}"
