@@ -52,9 +52,9 @@ SETUP
 
 2. Create virtual environment
 
-   * python -m venv venv
+   * python3 -m venv venv
 
-   * Linux / macOS:
+   * Linux:
      source venv/bin/activate
 
    * Windows:
@@ -187,7 +187,14 @@ Run manually:
 
 Cron job (daily at 02:00):
 
-   0 2 * * * /path/to/python /path/to/manage.py update_handling_time
+   add script run_cron.sh to project
+      #!/bin/bash
+      
+      cd /path/to/project
+      source venv/bin/activate
+      python manage.py update_handling_time
+
+0 2 * * * /path/to/project/run_cron.sh >> /tmp/cron.log 2>&1
 
 
 ------------------------------------------------------------
