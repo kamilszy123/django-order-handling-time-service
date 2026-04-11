@@ -152,9 +152,9 @@ After opening the authorization URL:
 API
 ------------------------------------------------------------
 
-Create / Update configuration:
+Create / Update configuration for one offer:
 
-   POST /handling-time/config/
+   POST /config/
 
        {
          "offer_id": "123",
@@ -164,12 +164,12 @@ Create / Update configuration:
 
 Get all configurations:
 
-   GET /handling-time/config/
+   GET /config/
 
 
 Bulk update:
 
-   POST /handling-time/bulk/
+   POST /config/all/
 
        {
          "target_date": "2026-04-20"
