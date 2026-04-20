@@ -46,8 +46,8 @@ SETUP
 
 1. Clone repository
 
-   * git clone <repository_url>
-   * cd <project_name>
+   * git clone https://github.com/kamilszy123/django-order-handling-time-service.git
+   * cd django-order-handling-time-service
 
 
 2. Create virtual environment
