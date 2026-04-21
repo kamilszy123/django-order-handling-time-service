@@ -129,7 +129,7 @@ The redirect_uri should be constructed as:
 
 Example:
 
-   https://example-domain.com/api/allegro/callback/
+   https://example.com/api/allegro/callback/
 
 
 IMPORTANT:
@@ -212,5 +212,8 @@ HOW IT WORKS
 2. System calculates remaining days
 3. Handling time is updated
 4. Scheduled job keeps everything in sync
+------------------------------------------------------------
+AUTHOR
+------------------------------------------------------------
 
-
+Kamil Szymański
