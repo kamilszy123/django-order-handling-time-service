@@ -71,7 +71,7 @@ SETUP
     * To function correctly, the application must be granted the following Allegro API permissions:
         * allegro:api:sale:offers:read – enables access to retrieve offer data
         * allegro:api:sale:offers:write – enables creating, updating, linking, and closing offers
-    * Chose option - The application will have access to a web browser, which will be used by the user to log in to Allegro (e.g., a server-hosted application or an executable file).
+    * Choose option - The application will have access to a web browser, which will be used by the user to log in to Allegro (e.g., a server-hosted application or an executable file).
 
     * you will receive your CLIENT ID and CLIENT SECRET
 
@@ -154,7 +154,7 @@ API
 
 Create / Update configuration for one offer:
 
-   POST /config/
+    POST /config/
 
        {
          "offer_id": "123",
@@ -164,17 +164,47 @@ Create / Update configuration for one offer:
 
 Get all configurations:
 
-   GET /config/
+    GET /config/
 
 
 Bulk update:
 
-   POST /config/all/
+     POST /config/all/
 
        {
          "target_date": "2026-04-20"
        }
 
+
+------------------------------------------------------------
+HANDLING TIME LOGIC
+------------------------------------------------------------
+The application converts remaining days until the target date
+into the nearest supported Allegro handling time value.
+
+Examples:
+
+* 1 day   -> PT24H
+* 2 days  -> P2D
+* 12 days -> P14D
+* 60+ days -> P60D
+
+------------------------------------------------------------
+ALLEGRO INTEGRATION
+------------------------------------------------------------
+
+The application integrates with the Allegro REST API
+using OAuth2 authentication.
+
+Behavior:
+
+* automatically refreshes expired access tokens
+* retries request after 401 Unauthorized response
+* isolates HTTP communication in dedicated client layer
+* supports Allegro sandbox environment
+
+The integration layer is separated from business logic,
+allowing easier extension and maintenance.
 
 ------------------------------------------------------------
 AUTOMATION
@@ -187,22 +217,63 @@ Run manually:
 
 Cron job (daily at 02:00):
 
-   add script run_cron.sh to project
+   add script run_cron.sh to project 
+   
       #!/bin/bash
-      
+
       cd /path/to/project
       source venv/bin/activate
       python manage.py update_handling_time
-
-0 2 * * * /path/to/project/run_cron.sh >> /tmp/cron.log 2>&1
+#
+    0 2 * * * /path/to/project/run_cron.sh >> /tmp/cron.log 2>&1
 
 
 ------------------------------------------------------------
 TESTS
 ------------------------------------------------------------
 
-   pytest
+Run tests:
 
+     pytest
+
+Includes:
+
+* API endpoint tests
+* handling time calculation tests
+* management command tests
+* create/update configuration tests
+* mocked external service calls
+
+------------------------------------------------------------
+ARCHITECTURE
+------------------------------------------------------------
+
+The project follows a layered structure:
+
+API (DRF views)  
+↓  
+Services (business logic)  
+↓  
+Integrations (Allegro API)  
+↓  
+Database (PostgreSQL)
+
+Key decisions:
+
+* Separation of concerns (API / services / integrations)
+* Dedicated Allegro HTTP client wrapper
+* OAuth2 token lifecycle handling
+* Batch processing using Django management commands
+* Idempotent configuration updates using update_or_create
+
+------------------------------------------------------------
+ASSUMPTIONS & LIMITATIONS
+------------------------------------------------------------
+
+* Supports single Allegro account only
+* No user authentication/authorization
+* Limited retry handling
+* No pagination for offers endpoint
 
 ------------------------------------------------------------
 HOW IT WORKS
@@ -212,6 +283,7 @@ HOW IT WORKS
 2. System calculates remaining days
 3. Handling time is updated
 4. Scheduled job keeps everything in sync
+   
 ------------------------------------------------------------
 AUTHOR
 ------------------------------------------------------------
